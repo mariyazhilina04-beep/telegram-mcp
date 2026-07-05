@@ -13,22 +13,6 @@ export class MyMCP extends McpAgent {
 		// Simple addition tool
 		this.server.registerTool(
 			"add",
-			  this.server.tool(
-    "send_telegram_message",
-    "Отправляет сообщение Марии в Telegram",
-    { text: z.string() },
-    async ({ text }) => {
-      const token = (this.env as any).TELEGRAM_BOT_TOKEN;
-      const chatId = (this.env as any).TELEGRAM_CHAT_ID;
-      const res = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ chat_id: chatId, text }),
-      });
-      const data = await res.json();
-      return { content: [{ type: "text", text: JSON.stringify(data) }] };
-    }
-  );
 			{ inputSchema: { a: z.number(), b: z.number() } },
 			async ({ a, b }) => ({
 				content: [{ type: "text", text: String(a + b) }],
@@ -73,6 +57,29 @@ export class MyMCP extends McpAgent {
 				return { content: [{ type: "text", text: String(result) }] };
 			},
 		);
+
+		// Send a message to Mariya's Telegram
+		this.server.registerTool(
+			"send_telegram_message",
+			{
+				description: "Отправляет сообщение Марии в Telegram",
+				inputSchema: { text: z.string() },
+			},
+			async ({ text }) => {
+				const token = (this.env as any).TELEGRAM_BOT_TOKEN;
+				const chatId = (this.env as any).TELEGRAM_CHAT_ID;
+				const res = await fetch(
+					`https://api.telegram.org/bot${token}/sendMessage`,
+					{
+						method: "POST",
+						headers: { "Content-Type": "application/json" },
+						body: JSON.stringify({ chat_id: chatId, text }),
+					},
+				);
+				const data = await res.json();
+				return { content: [{ type: "text", text: JSON.stringify(data) }] };
+			},
+		);
 	}
 }
 
@@ -87,4 +94,3 @@ export default {
 		return new Response("Not found", { status: 404 });
 	},
 };
-add telegram tool
